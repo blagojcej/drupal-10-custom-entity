@@ -2,3 +2,9 @@ offer_overview_page:
   css:
     theme:
       css/overview.css: {}
+
+toolbar:
+  version: 1.0
+  css:
+    base:
+      css/toolbar.css: {}

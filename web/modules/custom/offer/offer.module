@@ -145,3 +145,10 @@ function offer_form_alter(array &$form, FormStateInterface $form_state, $form_id
     $form['revision_log']['#access'] = FALSE;
   }
 }
+
+/*
+ * Implements hook_toolbar_alter()
+ */
+function offer_toolbar_alter(&$items) {
+  $items['administration']['#attached']['library'][] = 'offer/toolbar';
+}
