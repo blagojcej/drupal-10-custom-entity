@@ -1,0 +1,10 @@
+entity.offer.settings:
+  title: 'Offer'
+  description: 'Configure an Offer entity type.'
+  route_name:  entity.offer.settings
+  parent: system.admin_structure
+entity.offer.collection:
+  title: 'My Offers'
+  description: 'List of offers.'
+  route_name: entity.offer.collection
+  parent: system.admin

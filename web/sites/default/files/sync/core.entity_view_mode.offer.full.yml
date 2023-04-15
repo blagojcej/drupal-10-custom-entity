@@ -1,0 +1,10 @@
+uuid: 5c341a73-a535-403e-8876-b04be180d37b
+langcode: en
+status: true
+dependencies:
+  module:
+    - offer
+id: offer.full
+label: Full
+targetEntityType: offer
+cache: true

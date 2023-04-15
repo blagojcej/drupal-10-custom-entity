@@ -1,0 +1,5 @@
+offer.add_form:
+  title: 'Add an offer'
+  route_name: offer.add
+  appears_on:
+    - entity.offer.collection

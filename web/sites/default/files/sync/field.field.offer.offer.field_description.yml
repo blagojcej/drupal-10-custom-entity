@@ -1,0 +1,21 @@
+uuid: 74410fec-5e35-4f94-9fb5-aeecb1ce5f5d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.offer.field_description
+  module:
+    - offer
+    - text
+id: offer.offer.field_description
+field_name: field_description
+entity_type: offer
+bundle: offer
+label: Description
+description: 'Be as complete as possible about your offer'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

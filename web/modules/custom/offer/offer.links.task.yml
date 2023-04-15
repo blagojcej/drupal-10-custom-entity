@@ -1,0 +1,22 @@
+entity.offer.settings:
+  title: 'Settings'
+  route_name: entity.offer.settings
+  base_route: entity.offer.settings
+entity.offer.view:
+  title: 'View'
+  route_name: entity.offer.canonical
+  base_route: entity.offer.canonical
+entity.offer.edit_form:
+  title: 'Edit'
+  route_name: entity.offer.edit_form
+  base_route: entity.offer.canonical
+entity.offer.delete_form:
+  title: 'Delete'
+  route_name: entity.offer.delete_form
+  base_route: entity.offer.canonical
+  weight: 10
+# entity.offer.collection:
+#   title: 'Offers'
+#   route_name: entity.offer.collection
+#   base_route: system.admin_content
+#   weight: 10

@@ -1,0 +1,3 @@
+administer own offers:
+  title: 'Create/edit/delete own offers'
+  restrict access: true

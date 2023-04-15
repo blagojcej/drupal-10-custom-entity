@@ -1,0 +1,23 @@
+uuid: af09f5fd-95cd-4060-8547-87f8026f4f59
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.media.media_library
+  module:
+    - media
+name: HTML
+format: html
+weight: 0
+filters:
+  media_embed:
+    id: media_embed
+    provider: media
+    status: true
+    weight: 100
+    settings:
+      default_view_mode: default
+      allowed_view_modes:
+        media_library: media_library
+      allowed_media_types:
+        image: image
