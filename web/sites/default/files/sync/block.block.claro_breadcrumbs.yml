@@ -11,7 +11,7 @@ _core:
 id: claro_breadcrumbs
 theme: claro
 region: breadcrumb
-weight: 0
+weight: -3
 provider: null
 plugin: system_breadcrumb_block
 settings:

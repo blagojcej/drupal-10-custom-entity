@@ -1,0 +1,6 @@
+name: notification
+type: module
+description: Notification Entity
+core_version_requirement: ^10
+dependencies:
+  - drupal:offer

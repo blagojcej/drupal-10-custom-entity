@@ -4,3 +4,8 @@ description: Offer Entity
 core_version_requirement: ^10
 dependencies:
   - drupal:views
+  - drupal:workflows
+  - drupal:media_library
+  - drupal:options
+  - drupal:media
+  - drupal:content_moderation

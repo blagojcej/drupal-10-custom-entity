@@ -15,6 +15,7 @@
 /web/sites/default/files/profiler/*
 /web/sites/default/files/php/webprofiler/*
 !/web/sites/example.sites.php
+/web/sites/default/files/*.jpg
 
 # Ignore IDE files
 /.idea/

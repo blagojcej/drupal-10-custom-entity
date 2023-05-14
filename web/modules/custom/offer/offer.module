@@ -1,21 +1,27 @@
 <?php
 
-/**
- * @file
- * Provides an offer entity type.
- */
-
-use Drupal\offer\Entity\Offer;
-use Drupal\user\UserInterface;
 use Drupal\Core\Render\Element;
 use Drupal\views\ViewExecutable;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\notification\Entity\Notification;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * Implements hook_theme().
+ * Implements hook_form_alter().
  */
-function offer_theme()
-{
+function offer_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  $forms = ['offer_step_1_form', 'offer_step_2_form', 'offer_step_3_form', 'offer_edit_form'];
+  if (in_array($form_id, $forms)) {
+    // Prevent revision log box access
+    $form['revision_log']['#access'] = FALSE;
+  }
+}
+
+/**
+ * Provides a theme definition for custom content entity offer
+ * {@inheritdoc}
+ */
+function offer_theme($existing, $type, $theme, $path) {
   return [
     'offer' => [
       'render element' => 'elements',
@@ -25,95 +31,46 @@ function offer_theme()
     ],
     'offer__teaser' => [
       'base hook' => 'offer'
-    ]
+    ],
+    'user__compact' => [
+      'template'  => 'user--compact',
+      'base hook' => 'user',
+    ],
   ];
 }
 
 /**
- * Prepares variables for offer templates.
- *
- * Default template: offer.html.twig.
- *
- * @param array $variables
- *   An associative array containing:
- *   - elements: An associative array containing the offer information and any
- *     fields attached to the entity.
- *   - attributes: HTML attributes for the containing element.
+ * Prepares variables for templates.
+ * implements hook_preprocess_HOOK()
  */
 function template_preprocess_offer(array &$variables)
 {
   foreach (Element::children($variables['elements']) as $key) {
     $variables['content'][$key] = $variables['elements'][$key];
   }
-  $offer = $variables['elements']['#offer'];
 
-  $temp = $offer->getPromoText();
+  $offer = $variables['elements']['#offer'];
   // The full offer object
   $variables['offer'] = $offer;
-}
 
-/**
- * Implements hook_user_cancel().
- */
-function offer_user_cancel($edit, UserInterface $account, $method)
-{
-  switch ($method) {
-    case 'user_cancel_block_unpublish':
-      // Unpublish offers.
-      $storage = \Drupal::entityTypeManager()->getStorage('offer');
-      $offer_ids = $storage->getQuery()
-        ->condition('uid', $account->id())
-        ->condition('status', 1)
-        ->execute();
-      foreach ($storage->loadMultiple($offer_ids) as $offer) {
-        $offer->set('status', FALSE);
-        $offer->save();
-      }
-      break;
+  // the user profile
+  // Render the 'compact' user profile
+  $entity_type = 'user';
+  $entity_id = $offer->getOwnerId();
+  $view_mode = 'compact';
+  $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($entity_id);
+  $view_builder = \Drupal::entityTypeManager()->getViewBuilder($entity_type);
+  $user_to_render = $view_builder->view($entity, $view_mode);
+  $variables['user_profile'] = $user_to_render;
 
-    case 'user_cancel_reassign':
-      // Anonymize offers.
-      $storage = \Drupal::entityTypeManager()->getStorage('offer');
-      $offer_ids = $storage->getQuery()
-        ->condition('uid', $account->id())
-        ->execute();
-      foreach ($storage->loadMultiple($offer_ids) as $offer) {
-        $offer->setOwnerId(0);
-        $offer->save();
-      }
-      break;
-  }
-}
-
-/**
- * Implements hook_ENTITY_TYPE_predelete() for user entities.
- */
-function offer_user_predelete(UserInterface $account)
-{
-  // Delete offers.
-  $storage = \Drupal::entityTypeManager()->getStorage('offer');
-  $offer_ids = $storage->getQuery()
-    ->condition('uid', $account->id())
-    ->execute();
-  $offers = $storage->loadMultiple($offer_ids);
-  $storage->delete($offers);
-  // Delete old revisions.
-  $offer_ids = $storage->getQuery()
-    ->allRevisions()
-    ->condition('uid', $account->id())
-    ->execute();
-  foreach (array_keys($offer_ids) as $revision_id) {
-    $storage->deleteRevision($revision_id);
-  }
 }
 
 /**
  * Adds template possibility for view modes
  * Implements hook_provider_theme_suggestions_hook_alter
  */
-function offer_theme_suggestions_offer_alter(array &$suggestions, array $vars, $hook)
-{
-  if ($offer = $vars['elements']['#offer']) {
+function offer_theme_suggestions_offer_alter( array &$suggestions, array $vars, $hook ) {
+  if ( $offer = $vars['elements']['#offer'] ) {
     if (isset($vars['elements']['#view_mode'])) {
       $suggestions[] = 'offer__' . $vars['elements']['#view_mode'];
     }
@@ -123,32 +80,89 @@ function offer_theme_suggestions_offer_alter(array &$suggestions, array $vars, $
 /**
  * Implements hook_views_pre_render().
  */
-function offer_views_pre_render(ViewExecutable $view)
-{
+function offer_views_pre_render(ViewExecutable $view) {
   if (isset($view) && ($view->storage->id() == 'offer_overview')) {
-    $view->element['#attached']['library'][] =
-      'offer/offer_overview_page';
+    $view->element['#attached']['library'][] = 'offer/offer_overview_page';
   }
 }
 
 /**
- * Implements hook_form_alter().
+ * Implements hook_page_attachments().
  */
-function offer_form_alter(array &$form, FormStateInterface $form_state, $form_id)
-{
-  $forms = [
-    'offer_step_1_form', 'offer_step_2_form',
-    'offer_step_3_form', 'offer_edit_form'
-  ];
-  if (in_array($form_id, $forms)) {
-    // Prevent revision log box access
-    $form['revision_log']['#access'] = FALSE;
+function offer_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'offer/platform';
+  $attachments['#attached']['library'][] = 'notification/notification';
+}
+
+/**
+ * Add a "offer-detail-page" class to the body on a offer detail page
+ */
+function offer_preprocess_html(&$variables) {
+  $offer = \Drupal::routeMatch()->getParameter('offer');
+  if($offer) {
+    $variables['attributes']['class'][] = 'offer-detail-page';
   }
 }
 
-/*
- * Implements hook_toolbar_alter()
+/**
+ * Implements hook_ENTITY_TYPE_update()
  */
-function offer_toolbar_alter(&$items) {
-  $items['administration']['#attached']['library'][] = 'offer/toolbar';
+function offer_offer_update(\Drupal\Core\Entity\EntityInterface $entity) {
+  // content moderation state
+  $currentState =  $entity->get('moderation_state')->getString();
+
+  // original moderation state
+  $originalState = $entity->original->get('moderation_state')->getString();
+
+  if(($originalState == 'published') && ($currentState == 'expired')) {
+    $bids = $entity->getOfferBids();
+    foreach($bids as $bid) {
+      Notification::create([
+        'type' => 'expired',
+        'uid' => ['target_id' => $bid->getOwnerId()],
+        'offer_id' => ['target_id' => $entity->id()]
+      ])->save();
+    }
+  }
 }
+
+/**
+ * Implements hook_user_login()
+ */
+function offer_user_login($account) {
+  $middleware = \Drupal::service('http_middleware.redirect_users_after_login');
+  $response = new RedirectResponse("/");
+  $middleware->setRedirectResponse($response);
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function offer_theme_suggestions_user(array $variables) {
+  return [
+    'user__' . $variables['elements']['#view_mode']
+  ];
+}
+
+/**
+ * Prepares variables for templates.
+ * implements hook_preprocess_HOOK()
+ */
+function template_preprocess_offer_userprofile(array &$variables)
+{
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+

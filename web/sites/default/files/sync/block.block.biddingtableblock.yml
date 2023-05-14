@@ -1,0 +1,33 @@
+uuid: cf3069a0-b5fa-4a8d-bb0a-7e97cb400d08
+langcode: en
+status: true
+dependencies:
+  module:
+    - offer
+    - system
+    - user
+  theme:
+    - claro
+id: biddingtableblock
+theme: claro
+region: content
+weight: -2
+provider: null
+plugin: offer_bidding_table_block
+settings:
+  id: offer_bidding_table_block
+  label: 'Bidding table block'
+  label_display: '0'
+  provider: offer
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/offer/*'
+  user_role:
+    id: user_role
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'
+    roles:
+      authenticated: authenticated

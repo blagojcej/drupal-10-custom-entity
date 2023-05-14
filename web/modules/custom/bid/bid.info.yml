@@ -1,0 +1,4 @@
+name: bid
+type: module
+description: Bid Entity
+core_version_requirement: ^10

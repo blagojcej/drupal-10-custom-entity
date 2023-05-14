@@ -1,0 +1,33 @@
+uuid: 6beaf203-6446-49e7-9b3a-56f307940b75
+langcode: en
+status: true
+dependencies:
+  module:
+    - offer
+    - system
+    - user
+  theme:
+    - claro
+id: offerbidblock
+theme: claro
+region: content
+weight: -3
+provider: null
+plugin: offer_bidding_block
+settings:
+  id: offer_bidding_block
+  label: 'Offer bid block'
+  label_display: '0'
+  provider: offer
+visibility:
+  request_path:
+    id: request_path
+    negate: false
+    pages: '/offer/*'
+  user_role:
+    id: user_role
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'
+    roles:
+      authenticated: authenticated

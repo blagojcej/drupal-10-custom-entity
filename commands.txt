@@ -1,0 +1,1 @@
+drush eval "\$module_data = \Drupal::config('core.extension')->get('module'); unset(\$module_data['bid']); \Drupal::configFactory()->getEditable('core.extension')->set('module', \$module_data)->save();"

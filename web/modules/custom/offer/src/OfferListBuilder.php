@@ -55,7 +55,7 @@ class OfferListBuilder extends EntityListBuilder {
 
     $total = $this->getStorage()
       ->getQuery()
-      ->accessCheck(FALSE)
+      ->accessCheck(TRUE)
       ->count()
       ->execute();
 

@@ -54,3 +54,19 @@ offer.step3:
     _title: 'Step 3: choose the type of offer'
   requirements:
     _entity_access: 'offer.edit'
+
+offer.config:
+  path: '/admin/config/offer/adminsettings'
+  defaults:
+    _form: '\Drupal\offer\Form\CustomConfigForm'
+    _title: 'Offer platform global settings'
+  requirements:
+    _permission: 'administer site configuration'
+
+offer.about:
+  path: '/about'
+  defaults:
+    _controller: '\Drupal\offer\Controller\AboutPageController::Render'
+    _title: 'About us'
+  requirements:
+    _access: 'TRUE'

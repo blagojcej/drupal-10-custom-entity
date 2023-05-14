@@ -1,0 +1,3 @@
+administer bid:
+  title: 'Administer bid settings'
+  restrict access: true
